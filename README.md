@@ -4,7 +4,7 @@ https://onepiece.kolbyml.com/
 
 A tiny, single-file web page that lets you enter your latest **One Piece** episode and instantly shows your **manga-canon progress** by subtracting filler (and, optionally, mixed/anime-canon episodes). No builds, no server, no tracking—just open `index.html`.
 
-![screenshot](image.png) <!-- optional; remove if you don't commit a screenshot -->
+![screenshot](image.png)
 
 ---
 
