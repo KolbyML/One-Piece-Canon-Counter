@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>One Piece: Canon Counter</title>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --panel: #11151a;
+      --text: #e8f0fe;
+      --muted: #9cb3c9;
+      --accent: #7dd3fc; /* sky-300 */
+      --ok: #34d399; /* emerald-400 */
+      --warn: #fbbf24; /* amber-400 */
+      --danger: #fb7185; /* rose-400 */
+      --border: #1f2937;
+      --shadow: 0 6px 24px rgba(0,0,0,.35);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f7fafc;
+        --panel: #ffffff;
+        --text: #0b1020;
+        --muted: #516173;
+        --border: #e6edf5;
+        --shadow: 0 10px 30px rgba(2, 6, 23, .06);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 10% -10%, rgba(125, 211, 252, .08), transparent 60%),
+                  radial-gradient(1000px 600px at 110% 10%, rgba(52, 211, 153, .07), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      display: grid; place-items: center; padding: 24px;
+    }
+    .card {
+      width: min(860px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: clip;
+    }
+    header { padding: 22px 22px 0; }
+    h1 { font-size: clamp(24px, 4vw, 34px); margin: 0 0 6px; letter-spacing: .2px; }
+    p.sub { color: var(--muted); margin: 0 0 14px; }
+    .content { padding: 0 22px 22px; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (min-width: 720px){ .row { grid-template-columns: 2fr 1fr; } }
+
+    .panel { background: var(--panel); border: 1px solid var(--border); padding: 16px; border-radius: 14px; }
+    label { font-weight: 600; display: block; margin-bottom: 8px; }
+    input[type="number"] { width: 100%; font-size: 20px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: transparent; color: var(--text); }
+    input[type="number"]:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .toggles { display: grid; gap: 8px; }
+    .toggle { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px dashed var(--border); border-radius: 12px; }
+    .toggle input { accent-color: var(--accent); width: 18px; height: 18px; }
+    .toggle span { color: var(--muted); font-size: 14px; }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; align-items: stretch; }
+    .stat { border: 1px solid var(--border); border-radius: 14px; padding: 14px; text-align: center; background: var(--panel); }
+    .stat .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .35px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stat .value { font-size: clamp(20px, 4vw, 28px); font-weight: 800; margin-top: 6px; }
+    .stat.good .value { color: var(--ok); }
+    .stat.warn .value { color: var(--warn); }
+    .stat.bad .value { color: var(--danger); }
+
+    .barWrap { margin-top: 12px; }
+    .bar { height: 14px; background: #0f172a; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+    .bar > div { height: 100%; }
+    .bar .filler { background: linear-gradient(90deg, rgba(251,113,133,.95), rgba(251,113,133,.7)); }
+    .bar .mixed { background: linear-gradient(90deg, rgba(251,191,36,.95), rgba(251,191,36,.7)); }
+    .bar .anime { background: linear-gradient(90deg, rgba(125,211,252,.95), rgba(125,211,252,.7)); }
+
+    details { margin-top: 14px; border: 1px dashed var(--border); border-radius: 12px; padding: 10px 12px; }
+    details summary { cursor: pointer; font-weight: 700; }
+    .small { color: var(--muted); font-size: 13px; }
+
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    button { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--panel); color: var(--text); cursor: pointer; font-weight: 600; }
+    button:hover { outline: 2px solid var(--accent); }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .chip { padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; cursor: pointer; font-size: 13px; color: var(--muted); background: var(--panel); }
+    .chip:hover { color: var(--text); }
+
+    footer { padding: 0 22px 22px; color: var(--muted); font-size: 12px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <header>
+      <h1>One Piece: Canon Counter</h1>
+      <p class="sub">Enter the last episode you watched. I’ll subtract filler (and optionally mixed/anime‑canon) to show your manga‑canon progress.</p>
+    </header>
+
+    <div class="content">
+      <div class="row">
+        <section class="panel">
+          <label for="count">Your latest episode number</label>
+          <input id="count" type="number" inputmode="numeric" min="1" step="1" placeholder="e.g., 1141" />
+
+          <div class="chips" id="quickChips"></div>
+
+          <div class="toggles" style="margin-top: 12px;">
+            <label>Subtract:</label>
+            <div class="toggle"><input id="subFiller" type="checkbox" checked /><b>Filler</b> <span>(pure anime‑only)</span></div>
+            <div class="toggle"><input id="subMixed" type="checkbox" /><b>Mixed</b> <span>(partial canon episodes)</span></div>
+            <div class="toggle"><input id="subAnime" type="checkbox" /><b>Anime‑canon</b> <span>(anime‑original but not filler)</span></div>
+          </div>
+
+          <div class="actions">
+            <button id="copyLink">Copy sharable link</button>
+            <button id="reset">Reset</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="stats">
+            <div class="stat"><div class="label">Total logged</div><div class="value" id="vTotal">0</div></div>
+            <div class="stat warn"><div class="label">Filler subtracted</div><div class="value" id="vFiller">0</div></div>
+            <div class="stat"><div class="label">Mixed / Anime</div><div class="value" id="vOther">0</div></div>
+            <div class="stat good"><div class="label">Canon progress</div><div class="value" id="vCanon">0</div></div>
+          </div>
+
+          <div class="barWrap">
+            <div class="bar" aria-hidden="true">
+              <div class="filler" id="barFiller" style="width:0%"></div>
+              <div class="mixed" id="barMixed" style="width:0%"></div>
+              <div class="anime" id="barAnime" style="width:0%"></div>
+            </div>
+            <div class="small" id="barNote" style="margin-top:6px"></div>
+          </div>
+
+          <details>
+            <summary>See episodes subtracted up to your number</summary>
+            <div id="list"></div>
+          </details>
+        </section>
+      </div>
+    </div>
+
+    <footer>
+      Data based on widely used community lists. Toggle categories to match your preference. This tool runs entirely in your browser.
+    </footer>
+  </div>
+
+<script>
+  // --- Episode ranges (inclusive) ---
+  // Filler / Mixed / Anime-canon sets are derived from public quick-lists (as of Aug 23, 2025).
+  const FILLER = [
+    [54,60],[98,99],[102,102],[131,143],[196,206],[220,225],[279,283],[291,292],[303,303],[317,319],
+    [326,336],[382,384],[406,407],[426,429],[457,458],[492,492],[542,542],[575,578],[590,590],[626,627],
+    [747,750],[780,782],[895,896],[907,907],[1029,1030]
+  ];
+  const MIXED = [
+    [45,47],[61,61],[68,69],[101,101],[226,226],[354,354],[421,421],[489,489],[520,520],[574,574],
+    [625,625],[628,628],[633,633],[653,653],[657,657],[679,679],[690,690],[731,731],[738,738],[751,751],
+    [777,778],[789,789],[803,803],[807,807],[878,879],[881,885],[887,890],[924,924],[988,989],[991,991]
+  ];
+  const ANIME_CANON = [
+    [50,51],[93,93],[213,216],[418,420],[453,456],[497,499],[506,506],[737,737],[775,775],[1084,1084]
+  ];
+
+  // Helper: count episodes in ranges up to N (inclusive)
+  function countUpTo(n, ranges){
+    let total = 0; if(!Number.isFinite(n) || n < 1) return 0;
+    for(const [a,b] of ranges){
+      if(n < a) continue; // no overlap
+      const hi = Math.min(n, b);
+      if(hi >= a) total += (hi - a + 1);
+    }
+    return total;
+  }
+
+  // Helper: build a compact list of ranges up to N as strings like "54–60, 98–99, 102"
+  function sliceRangesUpTo(n, ranges){
+    const parts = [];
+    for(const [a,b] of ranges){
+      if(n < a) continue;
+      const hi = Math.min(n, b);
+      if(hi < a) continue;
+      parts.push(a === hi ? `${a}` : `${a}–${hi}`);
+    }
+    return parts.join(", ");
+  }
+
+  // UI elements
+  const $count = document.getElementById('count');
+  const $subFiller = document.getElementById('subFiller');
+  const $subMixed = document.getElementById('subMixed');
+  const $subAnime = document.getElementById('subAnime');
+  const $vTotal = document.getElementById('vTotal');
+  const $vFiller = document.getElementById('vFiller');
+  const $vOther = document.getElementById('vOther');
+  const $vCanon = document.getElementById('vCanon');
+  const $list = document.getElementById('list');
+  const $barFiller = document.getElementById('barFiller');
+  const $barMixed = document.getElementById('barMixed');
+  const $barAnime = document.getElementById('barAnime');
+  const $barNote = document.getElementById('barNote');
+  const $quickChips = document.getElementById('quickChips');
+
+  function update(){
+    const n = Math.max(0, Math.floor(Number($count.value)) || 0);
+    const useFiller = $subFiller.checked;
+    const useMixed = $subMixed.checked;
+    const useAnime = $subAnime.checked;
+
+    const fillerCount = useFiller ? countUpTo(n, FILLER) : 0;
+    const mixedCount = useMixed ? countUpTo(n, MIXED) : 0;
+    const animeCount = useAnime ? countUpTo(n, ANIME_CANON) : 0;
+
+    const totalSubtract = fillerCount + mixedCount + animeCount;
+    const canon = Math.max(0, n - totalSubtract);
+
+    $vTotal.textContent = n.toLocaleString();
+    $vFiller.textContent = fillerCount.toLocaleString();
+    $vOther.textContent = (mixedCount + animeCount).toLocaleString();
+    $vCanon.textContent = canon.toLocaleString();
+
+    // Percent bars (stacked)
+    const pct = n > 0 ? (100 / n) : 0;
+    $barFiller.style.width = Math.min(100, Math.round(pct * fillerCount)) + '%';
+    $barMixed.style.width = Math.min(100, Math.round(pct * mixedCount)) + '%';
+    $barMixed.style.marginLeft = Math.round(pct * fillerCount) + '%';
+    $barAnime.style.width = Math.min(100, Math.round(pct * animeCount)) + '%';
+    $barAnime.style.marginLeft = Math.round(pct * (fillerCount + mixedCount)) + '%';
+    $barNote.textContent = n > 0 ? `${fillerCount} filler${useMixed||useAnime?`, ${mixedCount} mixed, ${animeCount} anime‑canon`:''}` : '';
+
+    // Details list
+    const sections = [];
+    if(useFiller){
+      const s = sliceRangesUpTo(n, FILLER); if(s) sections.push(`<b>Filler</b>: ${s}`);
+    }
+    if(useMixed){
+      const s = sliceRangesUpTo(n, MIXED); if(s) sections.push(`<b>Mixed</b>: ${s}`);
+    }
+    if(useAnime){
+      const s = sliceRangesUpTo(n, ANIME_CANON); if(s) sections.push(`<b>Anime‑canon</b>: ${s}`);
+    }
+    $list.innerHTML = sections.length ? sections.map(x => `<div class="small">${x}</div>`).join('') : '<div class="small">(Nothing to subtract yet.)</div>';
+
+    // Persist state
+    const state = { n, f: useFiller?1:0, m: useMixed?1:0, a: useAnime?1:0 };
+    localStorage.setItem('opc_state', JSON.stringify(state));
+    history.replaceState(null, '', `?count=${n}&f=${state.f}&m=${state.m}&a=${state.a}`);
+  }
+
+  // Quick chips
+  function addChip(n){
+    const el = document.createElement('span');
+    el.className = 'chip';
+    el.textContent = n.toLocaleString();
+    el.addEventListener('click', () => { $count.value = n; update(); });
+    $quickChips.appendChild(el);
+  }
+
+  // Copy link
+  document.getElementById('copyLink').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(location.href);
+      const btn = event.target; const txt = btn.textContent; btn.textContent = 'Copied!';
+      setTimeout(()=> btn.textContent = txt, 1200);
+    } catch {}
+  });
+
+  // Reset
+  document.getElementById('reset').addEventListener('click', () => {
+    $count.value = ''; $subFiller.checked = true; $subMixed.checked = false; $subAnime.checked = false; update();
+  });
+
+  // Bind
+  [$count, $subFiller, $subMixed, $subAnime].forEach(el => el.addEventListener('input', update));
+
+  // Init from query/localStorage
+  (function init(){
+    const params = new URLSearchParams(location.search);
+    const saved = localStorage.getItem('opc_state');
+    let n = 0, f=1, m=0, a=0;
+    if(params.has('count')){ n = Math.max(0, parseInt(params.get('count'))||0); }
+    if(params.has('f')) f = params.get('f') === '1' ? 1 : 0;
+    if(params.has('m')) m = params.get('m') === '1' ? 1 : 0;
+    if(params.has('a')) a = params.get('a') === '1' ? 1 : 0;
+    if(!params.has('count') && saved){
+      try { const s = JSON.parse(saved); n = s.n ?? n; f = s.f ?? f; m = s.m ?? m; a = s.a ?? a; } catch {}
+    }
+    $count.value = n || '';
+    $subFiller.checked = !!f; $subMixed.checked = !!m; $subAnime.checked = !!a;
+
+    // Add a few quick chips: 100, 500, 1000, 1141 (latest on common lists as of 2025-08)
+    [100, 500, 1000, 1141].forEach(addChip);
+    update();
+  })();
+</script>
+</body>
+</html>
