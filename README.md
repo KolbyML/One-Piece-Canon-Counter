@@ -122,4 +122,4 @@ Yes—once you have `index.html`, you can run it without internet.
 
 ## 📝 License
 
-MIT — see `LICENSE` (or choose a different license if you prefer).
+MIT — see `LICENSE`
